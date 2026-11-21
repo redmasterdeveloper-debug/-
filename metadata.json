@@ -1,0 +1,6 @@
+{
+  "name": "سماء أور الإخبارية | UR SKY",
+  "description": "شبكة سماء أور الإخبارية (UR SKY) — منصة إخبارية عربية متكاملة لنقل الأخبار العاجلة، الآثار والتراث، المحليات، المشاريع والإعمار، الرياضة، والأمن والخدمات.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

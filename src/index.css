@@ -1,0 +1,105 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --ur-bg-deep: #24100a;
+    --ur-brand-clay: #683424;
+    --ur-cream: #f6f3db;
+    --ur-orb-warm: #8c432c;
+    --ur-orb-dark: #522416;
+    --ur-orb-copper: #b87333;
+    --ur-glass-bg: rgba(104, 52, 36, 0.28);
+    --ur-glass-border: rgba(246, 243, 219, 0.14);
+  }
+
+  html {
+    font-family: "Tajawal", system-ui, -apple-system, sans-serif;
+    background-color: #24100a;
+    color: #f6f3db;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-heading {
+    font-family: "Cairo", system-ui, -apple-system, sans-serif;
+    text-wrap: balance;
+  }
+}
+
+.glass-surface {
+  background-color: rgba(104, 52, 36, 0.28);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(246, 243, 219, 0.14);
+}
+
+.glass-surface-strong {
+  background-color: rgba(36, 16, 10, 0.72);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(246, 243, 219, 0.16);
+}
+
+@keyframes orbFloatOne {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-40px, 32px, 0) scale(1.08);
+  }
+}
+
+@keyframes orbFloatTwo {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(48px, -28px, 0) scale(1.06);
+  }
+}
+
+@keyframes orbFloatThree {
+  0%, 100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-24px, -36px, 0) scale(0.95);
+  }
+}
+
+@keyframes tickerScrollRtl {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(50%, 0, 0);
+  }
+}
+
+.animate-orb-1 {
+  animation: orbFloatOne 18s ease-in-out infinite;
+}
+
+.animate-orb-2 {
+  animation: orbFloatTwo 22s ease-in-out infinite;
+}
+
+.animate-orb-3 {
+  animation: orbFloatThree 26s ease-in-out infinite;
+}
+
+.animate-ticker-rtl {
+  animation: tickerScrollRtl 34s linear infinite;
+}
+
+.animate-ticker-rtl:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-orb-1,
+  .animate-orb-2,
+  .animate-orb-3,
+  .animate-ticker-rtl {
+    animation: none;
+  }
+}

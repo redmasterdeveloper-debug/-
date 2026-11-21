@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "NewsArticle": {
+      "title": "NewsArticle",
+      "description": "A published news article on the UR SKY News network.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Headline of the news article.",
+          "minLength": 3,
+          "maxLength": 200
+        },
+        "category": {
+          "type": "string",
+          "description": "Editorial category of the news article.",
+          "enum": [
+            "آثار وتراث",
+            "محليات",
+            "مشاريع وإعمار",
+            "رياضة",
+            "أمن وخدمات"
+          ]
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the journalist or editor.",
+          "minLength": 2,
+          "maxLength": 100
+        },
+        "content": {
+          "type": "string",
+          "description": "Full editorial body text of the news article.",
+          "minLength": 10,
+          "maxLength": 15000
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional external HTTPS URL or compressed base64 data URI for the article cover image.",
+          "maxLength": 350000
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Whether the article is publicly visible on the news portal."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the article was published."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the article was last updated."
+        }
+      },
+      "required": [
+        "title",
+        "category",
+        "authorName",
+        "content",
+        "imageUrl",
+        "isPublished",
+        "createdAt"
+      ]
+    },
+    "AdminToken": {
+      "title": "AdminToken",
+      "description": "Write-only atomic verification token proving admin passcode knowledge during news mutations.",
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Admin secret passcode validated server-side by Firestore rules.",
+          "minLength": 4,
+          "maxLength": 32
+        },
+        "articleId": {
+          "type": "string",
+          "description": "Target news article document ID.",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-zA-Z0-9_\\-]+$"
+        },
+        "action": {
+          "type": "string",
+          "description": "Mutation action being authorized.",
+          "enum": [
+            "create",
+            "delete"
+          ]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the token was issued."
+        }
+      },
+      "required": [
+        "code",
+        "articleId",
+        "action",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/news/{articleId}": {
+      "schema": {
+        "$ref": "#/entities/NewsArticle"
+      },
+      "description": "Publicly readable published news articles protected by atomic admin passcode tokens."
+    },
+    "/admin_tokens/{tokenId}": {
+      "schema": {
+        "$ref": "#/entities/AdminToken"
+      },
+      "description": "Write-only atomic passcode verification records paired with news mutations."
+    }
+  }
+}
