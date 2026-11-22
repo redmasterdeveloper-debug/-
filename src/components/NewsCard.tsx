@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
-import { ArrowUpLeft, Newspaper } from 'lucide-react';
-import { NewsArticle, formatArabicDateTime } from '../types/news';
+import { ArrowUpLeft, Link2, Newspaper } from 'lucide-react';
+import {
+  NewsArticle,
+  formatArabicDateTime,
+  formatGovernoratesSummary,
+} from '../types/news';
 
 interface NewsCardProps {
   article: NewsArticle;
@@ -15,6 +19,15 @@ export const NewsCard: React.FC<NewsCardProps> = ({
 }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const hasImage = Boolean(article.imageUrl?.trim()) && !imgFailed;
+
+  const holidaySummary = article.holidayType
+    ? article.holidayOccasion
+      ? `${article.holidayType}: ${article.holidayOccasion}`
+      : article.holidayType
+    : '';
+  const governoratesSummary = formatGovernoratesSummary(
+    article.holidayGovernorates
+  );
 
   return (
     <article
@@ -64,6 +77,20 @@ export const NewsCard: React.FC<NewsCardProps> = ({
             <span className="font-heading font-bold text-[#b87333]">
               {article.category}
             </span>
+            {holidaySummary && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="font-heading font-bold text-[#f6f3db]/90">
+                  {holidaySummary}
+                </span>
+              </>
+            )}
+            {governoratesSummary && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span className="text-[#f6f3db]/85">{governoratesSummary}</span>
+              </>
+            )}
             <span aria-hidden="true">·</span>
             <span>{article.authorName}</span>
             <span aria-hidden="true">·</span>
@@ -89,7 +116,7 @@ export const NewsCard: React.FC<NewsCardProps> = ({
           </p>
         </div>
 
-        <div className="mt-5 pt-4 border-t border-[#f6f3db]/12 flex items-center justify-between">
+        <div className="mt-5 pt-4 border-t border-[#f6f3db]/12 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={() => onSelect(article)}
@@ -98,6 +125,13 @@ export const NewsCard: React.FC<NewsCardProps> = ({
             <span>قراءة التفاصيل الكاملة</span>
             <ArrowUpLeft className="w-4 h-4" />
           </button>
+
+          {article.links.length > 0 && (
+            <span className="inline-flex items-center gap-1.5 text-xs text-[#f6f3db]/65 tabular-nums">
+              <Link2 className="w-3.5 h-3.5 text-[#b87333]" />
+              <span>{article.links.length} روابط</span>
+            </span>
+          )}
         </div>
       </div>
     </article>

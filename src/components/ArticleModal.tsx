@@ -1,6 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Newspaper, X } from 'lucide-react';
-import { NewsArticle, formatArabicDateTime } from '../types/news';
+import {
+  CalendarDays,
+  ExternalLink,
+  Link2,
+  MapPin,
+  Newspaper,
+  X,
+} from 'lucide-react';
+import {
+  ALL_IRAQ_OPTION,
+  NewsArticle,
+  formatArabicDateTime,
+} from '../types/news';
 
 interface ArticleModalProps {
   article: NewsArticle | null;
@@ -29,6 +40,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   if (!article) return null;
 
   const hasImage = Boolean(article.imageUrl?.trim()) && !imgFailed;
+  const hasAllIraq = article.holidayGovernorates.includes(ALL_IRAQ_OPTION);
 
   return (
     <div
@@ -86,17 +98,90 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
         </div>
 
         {/* Full Article Prose */}
-        <div className="p-6 sm:p-8">
-          <h2
-            id="article-modal-title"
-            className="font-heading font-extrabold text-2xl sm:text-3xl text-[#f6f3db] leading-snug mb-6"
-          >
-            {article.title}
-          </h2>
+        <div className="p-6 sm:p-8 space-y-6">
+          <div>
+            {(article.holidayType || article.holidayGovernorates.length > 0) && (
+              <div className="mb-4 p-4 rounded-2xl bg-[#683424]/35 border border-[#f6f3db]/16 space-y-2 text-sm text-[#f6f3db]">
+                {article.holidayType && (
+                  <div className="flex flex-wrap items-center gap-2.5">
+                    <CalendarDays className="w-5 h-5 text-[#b87333] shrink-0" />
+                    <span className="font-heading font-bold">
+                      عطلة رسمية · السبب: {article.holidayType}
+                    </span>
+                    {article.holidayOccasion && (
+                      <>
+                        <span aria-hidden="true" className="text-[#f6f3db]/40">
+                          —
+                        </span>
+                        <span className="font-heading font-extrabold text-[#f6f3db]">
+                          المناسبة: {article.holidayOccasion}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
+
+                {article.holidayGovernorates.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm text-[#f6f3db]/85">
+                    <MapPin className="w-4 h-4 text-[#b87333] shrink-0" />
+                    <span className="font-heading font-bold">
+                      المحافظات المشمولة بالعطلة:
+                    </span>
+                    <span>
+                      {hasAllIraq
+                        ? 'جميع أنحاء العراق (كافة المحافظات)'
+                        : article.holidayGovernorates.join('، ')}
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <h2
+              id="article-modal-title"
+              className="font-heading font-extrabold text-2xl sm:text-3xl text-[#f6f3db] leading-snug"
+            >
+              {article.title}
+            </h2>
+          </div>
 
           <div className="border-t border-[#f6f3db]/12 pt-6 max-w-prose text-[#f6f3db]/90 text-base sm:text-lg leading-loose whitespace-pre-line">
             {article.content}
           </div>
+
+          {/* Attached Links Section */}
+          {article.links.length > 0 && (
+            <div className="border-t border-[#f6f3db]/12 pt-6 space-y-3">
+              <div className="flex items-center gap-2 font-heading font-bold text-base text-[#f6f3db]">
+                <Link2 className="w-4 h-4 text-[#b87333]" />
+                <span>الروابط المرفقة</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {article.links.map((link, idx) => (
+                  <a
+                    key={`${link.url}-${idx}`}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#522416]/50 hover:bg-[#683424]/70 border border-[#f6f3db]/16 transition-colors group"
+                  >
+                    <div className="min-w-0">
+                      <span className="block font-heading font-bold text-sm text-[#f6f3db] group-hover:text-white truncate">
+                        {link.title}
+                      </span>
+                      <span
+                        className="block text-xs text-[#f6f3db]/60 truncate mt-0.5"
+                        dir="ltr"
+                      >
+                        {link.url}
+                      </span>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-[#b87333] shrink-0" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

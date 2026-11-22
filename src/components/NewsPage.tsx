@@ -1,10 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Newspaper, Search } from 'lucide-react';
-import {
-  FILTER_CATEGORIES,
-  FilterCategory,
-  NewsArticle,
-} from '../types/news';
+import { NewsArticle, PRESET_CATEGORIES } from '../types/news';
 import { NewsCard } from './NewsCard';
 
 interface NewsPageProps {
@@ -19,8 +15,19 @@ export const NewsPage: React.FC<NewsPageProps> = ({
   onSelectArticle,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] =
-    useState<FilterCategory>('الكل');
+  const [selectedCategory, setSelectedCategory] = useState<string>('الكل');
+
+  const availableCategories = useMemo(() => {
+    const customFromArticles = articles
+      .map((a) => a.category.trim())
+      .filter(
+        (cat) =>
+          cat.length > 0 &&
+          !(PRESET_CATEGORIES as readonly string[]).includes(cat)
+      );
+    const uniqueCustom = Array.from(new Set(customFromArticles));
+    return ['الكل', ...PRESET_CATEGORIES, ...uniqueCustom];
+  }, [articles]);
 
   const filteredArticles = useMemo(() => {
     const queryLower = searchQuery.trim().toLowerCase();
@@ -33,7 +40,8 @@ export const NewsPage: React.FC<NewsPageProps> = ({
         item.title.toLowerCase().includes(queryLower) ||
         item.content.toLowerCase().includes(queryLower) ||
         item.authorName.toLowerCase().includes(queryLower) ||
-        item.category.toLowerCase().includes(queryLower)
+        item.category.toLowerCase().includes(queryLower) ||
+        item.holidayOccasion.toLowerCase().includes(queryLower)
       );
     });
   }, [articles, searchQuery, selectedCategory]);
@@ -62,20 +70,20 @@ export const NewsPage: React.FC<NewsPageProps> = ({
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="ابحث في العناوين، نصوص الأخبار، أو اسم المحرر..."
+            placeholder="ابحث في العناوين، نصوص الأخبار، الأقسام، أو اسم المحرر..."
             aria-label="بحث فوري في الأخبار"
             className="w-full py-3.5 pr-11 pl-4 rounded-xl bg-[#24100a]/65 border border-[#f6f3db]/18 text-[#f6f3db] placeholder:text-[#f6f3db]/45 text-sm sm:text-base focus:outline-none focus:border-[#f6f3db]/55"
           />
           <Search className="w-5 h-5 text-[#f6f3db]/50 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
         </div>
 
-        {/* Category Filter Buttons */}
+        {/* Category Filter Buttons (includes preset + custom categories) */}
         <div
           className="flex flex-wrap items-center gap-2"
           role="tablist"
           aria-label="تصفية الأخبار حسب التصنيف"
         >
-          {FILTER_CATEGORIES.map((category) => {
+          {availableCategories.map((category) => {
             const isActive = selectedCategory === category;
             return (
               <button

@@ -7,10 +7,16 @@ import {
   where,
 } from 'firebase/firestore';
 import { OperationType, db, handleFirestoreError } from './firebase';
-import { ActivePage, NewsArticle, NewsCategory } from './types/news';
+import {
+  ActivePage,
+  ArticleLink,
+  HolidayType,
+  NewsArticle,
+} from './types/news';
 import { AmbientBackdrop } from './components/AmbientBackdrop';
 import { ArticleModal } from './components/ArticleModal';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { HolidaysPage } from './components/HolidaysPage';
 import { HomePage } from './components/HomePage';
 import { LoginGateModal } from './components/LoginGateModal';
 import { NewsPage } from './components/NewsPage';
@@ -41,13 +47,36 @@ function AppShell() {
         const items: NewsArticle[] = snapshot.docs.map((docSnap) => {
           const data = docSnap.data();
           const createdAt = data.createdAt as Timestamp | undefined;
+          const rawLinks = Array.isArray(data.links) ? data.links : [];
+          const parsedLinks: ArticleLink[] = rawLinks
+            .filter(
+              (l): l is { title?: unknown; url?: unknown } =>
+                Boolean(l) && typeof l === 'object'
+            )
+            .map((l) => ({
+              title: String(l.title ?? ''),
+              url: String(l.url ?? ''),
+            }))
+            .filter((l) => l.title !== '' && l.url !== '');
+
+          const rawGovs = Array.isArray(data.holidayGovernorates)
+            ? data.holidayGovernorates
+            : [];
+          const parsedGovs = rawGovs
+            .map((g) => String(g ?? '').trim())
+            .filter((g) => g !== '');
+
           return {
             id: docSnap.id,
             title: String(data.title ?? ''),
-            category: (data.category ?? 'محليات') as NewsCategory,
+            category: String(data.category ?? 'محليات'),
             authorName: String(data.authorName ?? ''),
             content: String(data.content ?? ''),
             imageUrl: String(data.imageUrl ?? ''),
+            links: parsedLinks,
+            holidayType: String(data.holidayType ?? '') as HolidayType | '',
+            holidayOccasion: String(data.holidayOccasion ?? ''),
+            holidayGovernorates: parsedGovs,
             isPublished: Boolean(data.isPublished),
             createdAtMs: createdAt?.toMillis ? createdAt.toMillis() : 0,
           };
@@ -106,7 +135,7 @@ function AppShell() {
 
       {/* Top 3-Zone Header */}
       <header className="sticky top-0 z-30 border-b border-[#f6f3db]/14 bg-[#24100a]/65 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 sm:gap-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-3 sm:gap-8">
           {/* Zone 1: Brand Logo (Right in RTL) */}
           <button
             type="button"
@@ -120,7 +149,7 @@ function AppShell() {
           {/* Zone 2: Clean Single-Line Nav Links */}
           <nav
             aria-label="التنقل الرئيسي"
-            className="flex items-center gap-4 sm:gap-7 text-xs sm:text-sm font-heading font-bold"
+            className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm font-heading font-bold overflow-x-auto"
           >
             <button
               type="button"
@@ -143,6 +172,17 @@ function AppShell() {
               }`}
             >
               الأخبار
+            </button>
+            <button
+              type="button"
+              onClick={() => handleNavigate('holidays')}
+              className={`py-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer border-b-2 ${
+                activePage === 'holidays'
+                  ? 'text-[#f6f3db] border-[#f6f3db]'
+                  : 'text-[#f6f3db]/70 border-transparent hover:text-[#f6f3db]'
+              }`}
+            >
+              العطل الرسمية
             </button>
             <button
               type="button"
@@ -192,6 +232,15 @@ function AppShell() {
           />
         )}
 
+        {activePage === 'holidays' && (
+          <HolidaysPage
+            articles={articles}
+            loading={articlesLoading}
+            onSelectArticle={setSelectedArticle}
+            onGoToAdmin={() => handleNavigate('admin')}
+          />
+        )}
+
         {activePage === 'admin' && (
           <AdminDashboard
             isAdminVerified={isAdminVerified}
@@ -221,6 +270,13 @@ function AppShell() {
               className="hover:text-[#f6f3db] transition-colors cursor-pointer"
             >
               الأخبار
+            </button>
+            <button
+              type="button"
+              onClick={() => handleNavigate('holidays')}
+              className="hover:text-[#f6f3db] transition-colors cursor-pointer"
+            >
+              العطل الرسمية
             </button>
             <button
               type="button"

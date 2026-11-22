@@ -1,5 +1,29 @@
 {
   "entities": {
+    "ArticleLink": {
+      "title": "ArticleLink",
+      "description": "An external reference link attached to a news article.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Display label for the link.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "url": {
+          "type": "string",
+          "description": "Destination HTTP/HTTPS URL.",
+          "minLength": 8,
+          "maxLength": 1000,
+          "pattern": "^https?://.+"
+        }
+      },
+      "required": [
+        "title",
+        "url"
+      ]
+    },
     "NewsArticle": {
       "title": "NewsArticle",
       "description": "A published news article on the UR SKY News network.",
@@ -13,14 +37,9 @@
         },
         "category": {
           "type": "string",
-          "description": "Editorial category of the news article.",
-          "enum": [
-            "آثار وتراث",
-            "محليات",
-            "مشاريع وإعمار",
-            "رياضة",
-            "أمن وخدمات"
-          ]
+          "description": "Preset or custom editorial category of the news article.",
+          "minLength": 2,
+          "maxLength": 60
         },
         "authorName": {
           "type": "string",
@@ -38,6 +57,30 @@
           "type": "string",
           "description": "Optional external HTTPS URL or compressed base64 data URI for the article cover image.",
           "maxLength": 350000
+        },
+        "links": {
+          "type": "array",
+          "description": "Up to 10 external links with titles attached to the article."
+        },
+        "holidayType": {
+          "type": "string",
+          "description": "Classification when the article is an official holiday announcement.",
+          "enum": [
+            "",
+            "أمطار",
+            "مناسبة دينية",
+            "مناسبة أخرى",
+            "وفاة"
+          ]
+        },
+        "holidayOccasion": {
+          "type": "string",
+          "description": "Specific occasion name (e.g., عيد الفطر) when holidayType is a religious/other occasion or passing.",
+          "maxLength": 120
+        },
+        "holidayGovernorates": {
+          "type": "array",
+          "description": "Selected Iraqi governorates included in the official holiday, or ['جميع أنحاء العراق'] for all governorates."
         },
         "isPublished": {
           "type": "boolean",
@@ -60,6 +103,10 @@
         "authorName",
         "content",
         "imageUrl",
+        "links",
+        "holidayType",
+        "holidayOccasion",
+        "holidayGovernorates",
         "isPublished",
         "createdAt"
       ]
